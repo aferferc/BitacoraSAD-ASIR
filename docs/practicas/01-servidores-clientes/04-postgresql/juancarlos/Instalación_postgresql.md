@@ -1,13 +1,15 @@
 
-# Instalación
+# Instalación Postgresql servidor y cliente (Juan Carlos)
 
-## 1.1 Actualizar la lista de paquetes
+## 1. Instalación
+
+### 1.1 Actualizar la lista de paquetes
 
 ```sh
 sudo apt update
 ```
 
-## 1.2 Instalar PostgreSQL
+### 1.2 Instalar PostgreSQL
 
 ```sh
 sudo apt install -y postgresql postgresql-client
@@ -15,7 +17,7 @@ sudo apt install -y postgresql postgresql-client
 
 Instalamos el servidor (`postgresql`) y la herramienta de consola `psql` (`postgresql-client`). Debian 13 trae la versión 17, así que no hace falta añadir repositorios externos. El instalador crea y arranca por sí solo un “clúster” llamado `main`.
 
-## 1.3 Comprobar que el servicio está activo
+### 1.3 Comprobar que el servicio está activo
 
 ```sh
 sudo systemctl status postgresql --no-pager
@@ -41,11 +43,11 @@ Ver Cluster Port Status Owner    Data directory              Log file
 
 El primer comando nos dice si el servicio está en marcha. El segundo lista los clústeres de PostgreSQL con su versión, puerto y estado. Debemos ver `17 main 5432 online`.
 
-# 2. Configurar el acceso remoto
+## 2. Configurar el acceso remoto
 
 Por defecto PostgreSQL solo escucha en la propia máquina (`localhost`). Para permitir conexiones desde la red local hay que tocar dos cosas: **en qué direcciones escucha** y **quién puede entrar**.
 
-## 2.1 Hacer que escuche en la red
+### 2.1 Hacer que escuche en la red
 
 ```sh
 sudo tee /etc/postgresql/17/main/conf.d/acceso-remoto.conf > /dev/null <<'EOF'
@@ -56,7 +58,7 @@ EOF
 
 Con este comando creamos un fichero de configuración propio dentro de `conf.d`, que Debian lee automáticamente. Así no modificamos el `postgresql.conf` original y es fácil deshacer el cambio borrando este fichero. `'*'` significa “escucha en todas las tarjetas de red”.
 
-## 2.2 Autorizar a nuestra red local
+### 2.2 Autorizar a nuestra red local
 
 ```sh
 sudo tee -a /etc/postgresql/17/main/pg_hba.conf > /dev/null <<'EOF'
@@ -76,7 +78,7 @@ El fichero `pg_hba.conf` es el “portero” de PostgreSQL. Con `tee -a` añadim
 
 Así abrimos solo lo imprescindible en lugar de dejar la puerta abierta a todo el mundo.
 
-## 2.3 Reiniciar para aplicar los cambios
+### 2.3 Reiniciar para aplicar los cambios
 
 ```sh
 sudo systemctl restart postgresql
@@ -84,7 +86,7 @@ sudo systemctl restart postgresql
 
 Los cambios de `listen_addresses` solo se aplican al reiniciar el servicio.
 
-## 2.4 Comprobar que escucha en la red
+### 2.4 Comprobar que escucha en la red
 
 ```sh
 sudo ss -tlnp | grep 5432
@@ -98,11 +100,11 @@ LISTEN 0      200             [::]:5432          [::]:*    users:(("postgres",pi
 
 `ss` muestra los puertos abiertos. Debemos ver `0.0.0.0:5432`, que indica que ya acepta conexiones externas. Si solo apareciera `127.0.0.1:5432`, el paso 2.1 no se aplicó.
 
-# 3. Crear usuario, base de datos y tablas
+## 3. Crear usuario, base de datos y tablas
 
 Entramos como el usuario administrador `postgres` del sistema, que es el único que puede crear usuarios y bases de datos al principio.
 
-## 3.1 Crear el usuario y la base de datos
+### 3.1 Crear el usuario y la base de datos
 
 ```sh
 cd /tmp
@@ -118,7 +120,7 @@ EOF
 - `CREATE USER` crea el usuario con su contraseña.
 - `CREATE DATABASE ... OWNER` crea la base de datos y se la asigna a ese usuario.
 
-## 3.2 Crear las tablas y poblarlas
+### 3.2 Crear las tablas y poblarlas
 
 ```sh
 sudo -u postgres psql -d prueba_bd <<'EOF'
@@ -166,7 +168,7 @@ EOF
 
 Creamos las tres tablas (`clientes`, `productos`, `pedidos`) y las relacionamos con claves foráneas (`REFERENCES`) de modo que un pedido solo puede apuntar a un cliente y un producto que existan. Después insertamos datos de prueba. Entramos con `-d prueba_bd` para que las tablas se creen en esa base de datos y no en otra.
 
-## 3.3 Dar permisos al usuario remoto
+### 3.3 Dar permisos al usuario remoto
 
 Hemos creado las tablas como administrador, así que el usuario remoto todavía no puede tocarlas. Se los damos:
 
@@ -180,9 +182,9 @@ EOF
 - La primera orden permite leer, insertar, modificar y borrar filas, pero no borrar ni cambiar la estructura de las tablas.
 - La segunda permite usar los contadores automáticos (`SERIAL`) sin ella no podría insertar filas nuevas.
 
-# 4. Pruebas de funcionamiento
+## 4. Pruebas de funcionamiento
 
-## 4.1 Prueba local
+### 4.1 Prueba local
 
 ```sh
 sudo -u postgres psql -d prueba_bd -c "\dt"
@@ -211,7 +213,7 @@ sudo -u postgres psql -d prueba_bd -c "SELECT * FROM clientes;"
 
 `\dt` lista las tablas y el `SELECT` comprueba que los datos se han guardado. Así sabemos que la base de datos funciona antes de probar la red.
 
-## 4.2 Prueba remota
+### 4.2 Prueba remota
 
 Desde otra máquina de nuestra red:
 
@@ -277,7 +279,7 @@ ORDER BY c.nombre;
 (5 filas)
 ```
 
-## 4.3 Prueba de escritura remota
+### 4.3 Prueba de escritura remota
 
 ```sh
 INSERT INTO clientes (nombre, email, ciudad) VALUES ('Prueba Remota', 'prueba@correo.es', 'Sevilla');
@@ -300,7 +302,7 @@ INSERT 0 1
 
 Comprobamos que el usuario no solo lee, sino que también puede insertar datos desde la red. Para salir, escribimos `\q`.
 
-## 4.4 Prueba de que la seguridad funciona
+### 4.4 Prueba de que la seguridad funciona
 
 ```sh
 psql -h 192.168.122.185 -U preuba_user -d postgres
@@ -314,7 +316,7 @@ psql: error: falló la conexión al servidor en «192.168.122.185», puerto 5432
 falló la conexión al servidor en «192.168.122.185», puerto 5432: FATAL:  no hay una línea en pg_hba.conf para «192.168.122.1», usuario «preuba_user», base de datos «postgres», sin cifrado
 ```
 
-# 5. Si algo falla
+## 5. Manejo de errores 
 
 |Mensaje de error|Causa probable|Solución|
 |---|---|---|
