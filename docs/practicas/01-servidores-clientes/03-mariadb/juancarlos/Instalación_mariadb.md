@@ -1,7 +1,9 @@
 
-# 1. Instalación
+# Instalación Mariadb Server y Mariadb Cliente (Juan Carlos)
 
-## 1.1 Actualizar la lista de paquetes
+## 1. Instalación 
+
+### 1.1 Actualizar la lista de paquetes
 
 ```sh
 sudo apt update
@@ -9,7 +11,7 @@ sudo apt update
 
 Actualizamos el índice de paquetes para instalar la versión más reciente que ofrece Debian.
 
-## 1.2 Instalar MariaDB
+### 1.2 Instalar MariaDB
 
 ```sh
 sudo apt install -y mariadb-server mariadb-client
@@ -17,7 +19,7 @@ sudo apt install -y mariadb-server mariadb-client
 
 Instalamos el servidor (`mariadb-server`) y la herramienta de consola (`mariadb-client`). Debian 13 trae MariaDB 11.8 así que no necesitamos repositorios externos. El servicio se arranca solo al terminar.
 
-## 1.3 Comprobar que está funcionando
+### 1.3 Comprobar que está funcionando
 
 ```sh
 sudo systemctl status mariadb --no-pager
@@ -60,7 +62,7 @@ Hint: Some lines were ellipsized, use -l to show in full.
 mariadb from 11.8.6-MariaDB, client 15.2 for debian-linux-gnu (x86_64) using  EditLine wrapper
 ```
 
-# 2. Asegurar la instalación
+## 2. Asegurar la instalación
 
 Una instalación recién hecha trae ajustes pensados para pruebas, como usuarios anónimos y una base de datos de ejemplo. Los quitamos con las mismas acciones que hace el asistente `mariadb-secure-installation`, pero de forma directa:
 
@@ -77,11 +79,11 @@ EOF
 - `DROP DATABASE test` elimina la base de datos de pruebas que viene por defecto.
 - `FLUSH PRIVILEGES` hace que los cambios se apliquen al momento.
 
-# 3. Configurar el acceso remoto
+## 3. Configurar el acceso remoto
 
 Por defecto MariaDB solo escucha en `127.0.0.1` (la propia máquina). Para aceptar conexiones de la red hay que cambiar la dirección en la que escucha.
 
-## 3.1 Hacer que escuche en la red
+### 3.1 Hacer que escuche en la red
 
 ```sh
 sudo tee /etc/mysql/mariadb.conf.d/99-acceso-remoto.cnf > /dev/null <<'EOF'
@@ -93,7 +95,7 @@ EOF
 
 Creamos un fichero propio en lugar de editar `50-server.cnf` que es el original. MariaDB lee los ficheros por orden alfabético y gana el último, así que el `99-` sobrescribe el valor por defecto. Si queremos deshacerlo basta con borrarlo. `0.0.0.0` significa “escucha en todas las tarjetas de red”.
 
-## 3.2 Reiniciar el servicio
+### 3.2 Reiniciar el servicio
 
 ```sh
 sudo systemctl restart mariadb
@@ -101,7 +103,7 @@ sudo systemctl restart mariadb
 
 El cambio de `bind-address` solo se aplica al reiniciar.
 
-## 3.3 Comprobar que escucha en la red
+### 3.3 Comprobar que escucha en la red
 
 ```sh
 sudo ss -tlnp | grep 3306
@@ -114,9 +116,9 @@ juanka@oradeb:~$ sudo ss -tlnp | grep 3306
 LISTEN 0      80           0.0.0.0:3306       0.0.0.0:*    users:(("mariadbd",pid=2323,fd=28))   
 ```
 
-# 4. Crear usuario, base de datos y tablas
+## 4. Crear usuario, base de datos y tablas
 
-## 4.1 Crear la base de datos y el usuario remoto
+### 4.1 Crear la base de datos y el usuario remoto
 
 ```sh
 sudo mariadb <<'EOF'
@@ -131,7 +133,7 @@ EOF
 - `'usuario_prueba'@'192.168.122.%'` indica **quién** es el usuario y **desde dónde** puede conectarse. El `%` es un comodín que equivale a cualquier IP de nuestra red local y desde cualquier otra red no podrá entrar. En MariaDB esto sustituye al `pg_hba.conf` de PostgreSQL.
 - `GRANT` le da permiso para leer, insertar, modificar y borrar filas pero solo dentro de `tienda`. No puede borrar tablas ni tocar otras bases de datos.
 
-# 4.2 Crear las tablas y poblarlas
+## 4.2 Crear las tablas y poblarlas
 
 ```sh
 sudo mariadb prueba_bd <<'EOF'
@@ -181,9 +183,9 @@ EOF
 
 Entramos directamente en `prueba_bd`  y creamos las tres tablas. `ENGINE=InnoDB` es el motor que permite las claves foráneas (`FOREIGN KEY`), que impiden que un pedido apunte a un cliente o producto que no existe. Después insertamos datos de prueba. Como el usuario remoto ya tenía permisos sobre  `prueba_bd.*`, las tablas nuevas le quedan accesibles sin hacer nada más.
 
-# 5. Pruebas de funcionamiento
+## 5. Pruebas de funcionamiento
 
-## 5.1 Prueba local
+### 5.1 Prueba local
 
 ```sh
 sudo mariadb prueba_bd -e "SHOW TABLES; SELECT * FROM clientes;"
@@ -210,7 +212,7 @@ juanka@oradeb:~$ sudo mariadb prueba_bd -e "SHOW TABLES; SELECT * FROM clientes;
 
 `-e` ejecuta las órdenes y sale. Comprobamos que las tablas existen y que los datos se guardaron antes de probar la red.
 
-## 5.2 Prueba remota
+### 5.2 Prueba remota
 
 ```sh
 mariadb -h 192.168.122.185 -u usuario_prueba -p prueba_bd
@@ -285,7 +287,7 @@ MariaDB [prueba_bd]> SELECT c.nombre AS cliente, pr.nombre AS producto, p.cantid
 5 rows in set (0,002 sec)
 ```
 
-## 5.3 Prueba de escritura remota
+### 5.3 Prueba de escritura remota
 
 ```sql
 INSERT INTO clientes (nombre, email, ciudad) VALUES ('Prueba Remota', 'prueba@correo.es', 'Sevilla');
@@ -311,7 +313,7 @@ MariaDB [prueba_bd]> SELECT * FROM clientes;
 5 rows in set (0,001 sec)
 ```
 
-## 5.4 Prueba de que los permisos funcionan
+### 5.4 Prueba de que los permisos funcionan
 
 ```sql
 DROP TABLE pedidos;
@@ -324,7 +326,7 @@ MariaDB [prueba_bd]> DROP TABLE pedidos;
 ERROR 1142 (42000): DROP command denied to user 'usuario_prueba'@'192.168.122.1' for table `prueba_bd`.`pedidos`
 ```
  
-# 6. Manejo de errores
+## 6. Manejo de errores
 
 | Mensaje de error                            | Causa probable                                                                            | Solución                                                                                                                                      |
 | ------------------------------------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
