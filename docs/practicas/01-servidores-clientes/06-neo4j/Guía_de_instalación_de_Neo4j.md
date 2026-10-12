@@ -12,6 +12,7 @@ Un grafo tiene tres piezas básicas:
 |**Nodo**|Una entidad|Una persona, un producto, una ciudad|
 |**Relación**|Una conexión con dirección y tipo entre dos nodos|Ana `COMPRÓ` un teclado|
 |**Propiedad**|Un dato guardado en un nodo o relación|`nombre: "Ana"`, `cantidad: 2`|
+
 ## 2. ¿Cómo funciona?
 
 En una base de datos relacional, para saber qué productos compraron los amigos de Ana hay que cruzar varias tablas y cuantos más saltos más lenta es la consulta. En Neo4j cada nodo **guarda directamente la dirección de sus vecinos**, así que recorrer una relación es seguir un puntero y no buscar en un índice. Por eso las consultas sobre datos muy conectados siguen siendo rápidas aunque la base de datos crezca.
@@ -357,7 +358,7 @@ ready to start consuming query after 108 ms, results consumed after another 2 ms
 
 Desde el navegador del cliente abrimos `http://192.168.122.185:7474` ponemos como URL de conexión `bolt://192.168.122.185:7687` e iniciamos sesión con `neo4j`. Ahí podemos ejecutar `MATCH (n) RETURN n LIMIT 25;` y ver el grafo dibujado.
 
-![[Interfaz web.png]]
+![Interfaz web.png](./Interfaz_web.png)
 
 ## 9. Gestión básica de usuarios
 
