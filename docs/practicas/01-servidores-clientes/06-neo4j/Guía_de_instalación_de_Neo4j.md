@@ -357,7 +357,7 @@ ready to start consuming query after 108 ms, results consumed after another 2 ms
 
 Desde el navegador del cliente abrimos `http://192.168.122.185:7474` ponemos como URL de conexión `bolt://192.168.122.185:7687` e iniciamos sesión con `neo4j`. Ahí podemos ejecutar `MATCH (n) RETURN n LIMIT 25;` y ver el grafo dibujado.
 
-![[docs/practicas/01-servidores-clientes/06-neo4j/Interfaz web.png]]
+![[Interfaz web.png]]
 
 ## 9. Gestión básica de usuarios
 
