@@ -9,7 +9,7 @@ Los comandos llevan una etiqueta:
 - (**admin**): usuario con `sudo`.
 - (**oracle**): sesión del usuario `oracle`.
 
-# 1. Requisitos y comprobaciones iniciales
+## 1. Requisitos y comprobaciones iniciales
 
 **(admin)** Comprobamos arquitectura, sistema, memoria, swap y disco:
 
@@ -23,7 +23,7 @@ df -h /opt /tmp
 
 Necesitamos `x86_64`, Debian GNU/Linux 13, 4 GB de RAM o más (mínimo 2 GB), swap, al menos 25 GB libres en `/opt` y 1 GB libre en `/tmp`. Con 4 GB de RAM usaremos `totalMemory=2048` en la creación de la base de datos.
 
-# 2. Descarga y transferencia del RPM
+## 2. Descarga y transferencia del RPM
 
 1. Descargamos el RPM **OL9** de Oracle AI Database 26ai (Linux x86-64) desde https://www.oracle.com/database/technologies/oracle26ai-linux-downloads.html. Hace falta una cuenta gratuita de Oracle.
 2. Lo copiamos a la máquina Debian desde nuestro equipo:
@@ -32,7 +32,7 @@ Necesitamos `x86_64`, Debian GNU/Linux 13, 4 GB de RAM o más (mínimo 2 GB), sw
 scp oracle-ai-database-ee-26ai-1.0-1.el9.x86_64.rpm debian@IP_DEL_SERVIDOR:~/
 ```
 
-# 3. Paquetes necesarios
+## 3. Paquetes necesarios
 
 **(admin)** Instalamos las dependencias, más las herramientas para abrir el RPM (`rpm`, `rpm2cpio`, `cpio`):
 
@@ -73,7 +73,7 @@ Deben aparecer `libaio.so.1` y `libnsl.so.2`. Si falta `libnsl.so.1`, lo enlazam
 sudo ldconfig
 ```
 
-# 4. Nombre del servidor y `/etc/hosts`
+## 4. Nombre del servidor y `/etc/hosts`
 
 Oracle exige que el nombre completo (FQDN) resuelva a la **IP real** de la máquina. Debian añade una línea `127.0.1.1` con el hostname, que causa problemas con el Listener, así que la eliminamos.
 
@@ -108,7 +108,7 @@ PING oradeb.abd.local (192.168.122.80) 56(84) bytes of data.
 rtt min/avg/max/mdev = 0.074/0.074/0.074/0.000 ms
 ```
 
-# 5. Grupos y usuario `oracle`
+## 5. Grupos y usuario `oracle`
 
 Replicamos lo que haría el paquete `oracle-ai-database-preinstall-26ai` en Oracle Linux, que no existe para Debian.
 
@@ -125,7 +125,7 @@ sudo passwd oracle
 id oracle
 ```
 
-# 6. Parámetros del kernel
+## 6. Parámetros del kernel
 
 En lugar de tocar `/etc/sysctl.conf`, creamos un fichero propio, que es más limpio y reversible:
 
@@ -190,7 +190,7 @@ kernel.sem = 250	32000	100	128
 kernel.shmmax = 4398046511104
 ```
 
-# 7. Límites de recursos del usuario `oracle`
+## 7. Límites de recursos del usuario `oracle`
 
 ```sh
 sudo tee /etc/security/limits.d/30-oracle.conf <<'EOF'
@@ -222,7 +222,7 @@ sudo su - oracle -c 'ulimit -n; ulimit -u; ulimit -s'
 10240
 ```
 
-# 8. Inspección del RPM
+## 8. Inspección del RPM
 
 Antes de extraerlo, miramos qué haría el instalador oficial en sus scripts `%pre` y `%post`. Así sabemos exactamente qué tenemos que reproducir a mano:
 
@@ -275,7 +275,7 @@ sudo rm -f /etc/init.d/oracledb_ORCLCDB-26ai
 /etc/init.d/oracledb_ORCLCDB-26ai  /etc/sysconfig/oracledb_ORCLCDB-26ai.conf
 ```
 
-# 10. Variables de entorno
+## 10. Variables de entorno
 
 Creamos un fichero propio y lo cargamos desde `~/.profile`. Los shells de login (`su - oracle`, `sudo su - oracle -c ...`) lo leen, y así no hay que tocar el bloque que Debian pone en `.bashrc`.
 
@@ -342,7 +342,7 @@ TNS_ADMIN=/opt/oracle/product/26ai/dbhome_1/network/admin
 
 `CV_ASSUME_DISTID=OL8` hace que las herramientas de Oracle crean que están en Oracle Linux 8, que es lo que permite pasar por alto la distro no soportada.
 
-# 11 Registro del home en el inventario de Oracle
+## 11 Registro del home en el inventario de Oracle
 
 Esto sustituye al `runInstaller` de instalación: el software ya está en su sitio y solo hay que **registrarlo**.
 
@@ -409,7 +409,7 @@ cat /opt/oracle/oraInventory/ContentsXML/inventory.xml
 
 La versión debe ser `23.26.1.0.0` y el `inventory.xml` debe listar `OraAI26Home1`.
 
-# 12. Configuración del Listener, escrita a mano
+## 12. Configuración del Listener, escrita a mano
 
 **(oracle)** Entramos de nuevo como `oracle` (`sudo su - oracle`). Creamos `listener.ora` con un listener llamado `LISTENER_ABD` en el puerto 1521. Añadimos una entrada estática (`SID_LIST`) para poder arrancar la base de datos remotamente aunque esté parada.
 
@@ -440,7 +440,7 @@ lsnrctl status LISTENER_ABD
 
 Debe aparecer `The command completed successfully` y el servicio estático `ABDCDB_STATIC` en `UNKNOWN`. Eso es normal mientras no exista la instancia.
 
-# 13. Creación de la base de datos CDB + PDB con `dbca`
+## 13. Creación de la base de datos CDB + PDB con `dbca`
 
 Seguimos en la sesión **(oracle)**. Pedimos la contraseña sin que quede en el historial y la guardamos en una variable. Con `-listeners` hacemos que la base de datos se registre en nuestro Listener.
 
@@ -481,7 +481,7 @@ ps -ef | grep -E 'pmon|tnslsnr' | grep -v grep
 
 Debe aparecer `ora_pmon_ABDCDB` y los servicios `ABDCDB`, `abdpdb1` y `ABDCDBXDB`.
 
-# 14. Parámetros de arranque en el SPFILE
+## 14. Parámetros de arranque en el SPFILE
 
 Primero comprobamos qué escribió `dbca`:
 
@@ -639,7 +639,7 @@ ABDCDB._instance_recovery_bloom_filter_size=1048576
 *.undo_tablespace='UNDOTBS1'
 ```
 
-# 15. Configuración de `tnsnames.ora` y `sqlnet.ora`
+## 15. Configuración de `tnsnames.ora` y `sqlnet.ora`
 
 `dbca` ya habrá creado entradas propias en `tnsnames.ora`. **No lo sobrescribimos**: hacemos copia de seguridad y añadimos solo lo que falte.
 
@@ -717,7 +717,7 @@ tnsping LISTENER_ABD
 
 Los tres `tnsping` deben terminar en `OK (… msec)`.
 
-# 16. Arranque automático con systemd
+## 16. Arranque automático con systemd
 
 **(admin)** Primero marcamos la instancia con `Y` en `/etc/oratab`:
 
@@ -826,9 +826,9 @@ systemctl status oracle-listener.service oracle-db.service --no-pager
 
 Ambas unidades deben quedar `active (exited)`. Si falla alguna: `journalctl -u oracle-db -n 50 --no-pager`.
 
-# 17. Verificación final
+## 17. Verificación final
 
-## 17.1 Procesos, Listener y servicios
+### 17.1 Procesos, Listener y servicios
 
 ```sh
 ps -ef | grep -E 'pmon|tnslsnr' | grep -v grep
@@ -837,7 +837,7 @@ sudo su - oracle -c 'lsnrctl services LISTENER_ABD'
 
 El `ps` debe mostrar `ora_pmon_ABDCDB` y `tnslsnr`. En `lsnrctl services`, la instancia `ABDCDB` debe estar en `READY` con los servicios `ABDCDB` y `abdpdb1`. El registro dinámico puede tardar hasta un minuto en aparecer.
 
-## 17.2 Estado de la CDB, la PDB y el SPFILE
+### 17.2 Estado de la CDB, la PDB y el SPFILE
 
 ```sh
 sudo su - oracle -c "sqlplus -s / as sysdba <<'EOF'
@@ -854,7 +854,7 @@ EOF"
 
 Esperamos `READ WRITE` en la CDB y en `ABDPDB1`. Sobre todo, `processes` debe valer `400`, lo que confirma que el SPFILE persistió el cambio tras el reinicio.
 
-## 17.3 Conexión mediante alias TNS
+### 17.3 Conexión mediante alias TNS
 
 Con la contraseña en la variable `ORA_PWD` (si abrimos una sesión nueva, repetimos el `read -s`):
 
@@ -872,7 +872,7 @@ EOF
 
 Deben devolver CDB$ROOT y ABDPDB1 respectivamente.
 
-## 17.4 Prueba funcional en la PDB
+### 17.4 Prueba funcional en la PDB
 
 Creamos un usuario temporal, una tabla y una consulta, y lo borramos después:
 
@@ -896,7 +896,7 @@ EOF
 exit
 ```
 
-## 17.5 Acceso remoto desde otra máquina
+### 17.5 Acceso remoto desde otra máquina
 
 Desde un equipo cliente de la red local, que no sea el servidor:
 
@@ -906,7 +906,7 @@ nc -zv IP_DEL_SERVIDOR 1521
 
 Debe responder `succeeded`. Si no, revisamos el cortafuegos (`sudo ufw allow 1521/tcp` si usáis ufw) y que el `HOST` del listener resuelva a la IP real.
 
-## 17.6 Prueba de reinicio
+### 17.6 Prueba de reinicio
 
 ```sh
 sudo reboot
@@ -914,7 +914,7 @@ sudo reboot
 
 Tras el reinicio, repetimos 17.1 y 17.2. Si todo vuelve solo, el arranque automático está bien configurado.
 
-# 18. Manejo de errores
+## 18. Manejo de errores
 
 |Síntoma|Causa probable|Solución|
 |---|---|---|
