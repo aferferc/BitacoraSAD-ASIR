@@ -1,6 +1,6 @@
-# Bitácora ABD
+# Bitácora SAD
 
-Documentación de las prácticas de Base de Datos · 2.º ASIR · IES Gonzalo Nazareno · Curso 2026/27.
+Documentación de las prácticas de Seguridad y Alta disponibilidad · 2.º ASIR · IES Gonzalo Nazareno · Curso 2026/27.
 
 ## Prácticas
 
