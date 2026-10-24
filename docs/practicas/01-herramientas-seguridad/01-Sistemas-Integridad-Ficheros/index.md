@@ -4,6 +4,6 @@ Instalación y configuración de Aide para mantener la integridad de ficheros de
 
 ###Enlaces a los videos:
 
-* [Linux]()
+* [Linux](https://youtu.be/91jC0SulIiE)
 
-* [Windows]()
+* [Windows](https://youtu.be/ALNiwQM_MZs?si=Cngxthmi44PJAK2C)
