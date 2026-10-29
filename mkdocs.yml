@@ -1,8 +1,8 @@
-site_name: Bitácora ABD
+site_name: Bitácora SAD
 site_description: "Laboratorio de Base de Datos · 2.º ASIR · IES Gonzalo Nazareno · Curso 2026/27"
-site_url: https://juankafdez05.github.io/BitacoraABD-ASIR/
-repo_url: https://github.com/juankafdez05/BitacoraABD-ASIR
-repo_name: juankafdez05/BitacoraABD-ASIR
+site_url: https://aferferc.github.io/BitacoraSAD-ASIR/
+repo_url: https://github.com/aferferc/BitacoraSAD-ASIR
+repo_name: aferferc/BitacoraSAD-ASIR
 docs_dir: docs
 site_dir: site
 use_directory_urls: true

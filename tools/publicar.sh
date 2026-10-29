@@ -4,8 +4,8 @@
 # No usa "push --force", no borra nada y no pide tokens: la autenticación la hace "gh auth login".
 set -euo pipefail
 
-OWNER="${OWNER:-juankafdez05}"
-REPO="${REPO:-BitacoraABD-ASIR}"
+OWNER="${OWNER:-aferferc}"
+REPO="${REPO:-BitacoraSAD-ASIR}"
 
 command -v git >/dev/null || { echo "Falta git: sudo apt install git"; exit 1; }
 command -v gh  >/dev/null || { echo "Falta GitHub CLI: sudo apt install gh   (y luego: gh auth login)"; exit 1; }
@@ -31,9 +31,9 @@ read -r -p "¿Confirmas? [s/N] " r; [[ "$r" =~ ^[sS]$ ]] || { echo "Cancelado.";
 
 [ -d .git ] || git init -b main
 git add -A
-git diff --cached --quiet || git commit -m "Proyecto inicial: Bitácora ABD"
+git diff --cached --quiet || git commit -m "Proyecto inicial: Bitácora SAD"
 gh repo create "$OWNER/$REPO" --public --source . --remote origin --push \
-  --description "Bitácora ABD · Laboratorio de Base de Datos · 2.º ASIR · IES Gonzalo Nazareno"
+  --description "Bitácora SAD · Laboratorio de Base de Datos · 2.º ASIR · IES Gonzalo Nazareno"
 
 # Activar GitHub Pages con "GitHub Actions" como origen.
 gh api -X POST "repos/$OWNER/$REPO/pages" -f build_type=workflow >/dev/null 2>&1 \

@@ -1,4 +1,4 @@
-"""Construye el sitio de producción y lo comprueba bajo /BitacoraABD-ASIR/."""
+"""Construye el sitio de producción y lo comprueba bajo la ruta base de site_url (mkdocs.yml)."""
 import shutil
 import subprocess
 import sys
@@ -10,7 +10,7 @@ import autonav
 import check_site
 
 ROOT = Path(__file__).resolve().parent.parent
-BASE = "/BitacoraABD-ASIR/"
+BASE = check_site.default_base()  # derivado de site_url: no depende del nombre del repo
 
 
 def documentos_reales():

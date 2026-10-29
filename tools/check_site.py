@@ -2,7 +2,8 @@
 
 Uso:  python tools/check_site.py [carpeta_site] [prefijo_base]
 Comprueba enlaces internos, imágenes, CSS y JS bajo la ruta base del
-repositorio (por defecto /BitacoraABD-ASIR/) y busca secretos.
+repositorio y busca secretos. Si no se indica, el prefijo base y el dominio
+se leen de "site_url" en mkdocs.yml, así que no dependen del nombre del repo.
 """
 from __future__ import annotations
 
@@ -11,6 +12,30 @@ import sys
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urldefrag, urljoin, urlparse
+
+ROOT = Path(__file__).resolve().parent.parent
+
+
+def site_url() -> str:
+    """Devuelve el site_url de mkdocs.yml (p. ej. https://usuario.github.io/Repo/)."""
+    text = (ROOT / "mkdocs.yml").read_text(encoding="utf-8")
+    m = re.search(r"^site_url:\s*(\S+)\s*$", text, re.MULTILINE)
+    if not m:
+        raise RuntimeError("mkdocs.yml no define site_url")
+    return m.group(1).strip("\"'")
+
+
+def default_base() -> str:
+    """Prefijo de ruta bajo el que se publica el sitio (p. ej. /Repo/)."""
+    path = urlparse(site_url()).path or "/"
+    return path if path.endswith("/") else path + "/"
+
+
+def default_origin() -> str:
+    """Dominio del sitio publicado (p. ej. https://usuario.github.io)."""
+    u = urlparse(site_url())
+    return f"{u.scheme}://{u.netloc}"
+
 
 SECRET_PATTERNS = [
     re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----"),
@@ -50,7 +75,8 @@ def _target_file(site: Path, base: str, url_path: str) -> Path | None:
     return p
 
 
-def check_links(site: Path, base: str = "/BitacoraABD-ASIR/") -> list[str]:
+def check_links(site: Path, base: str | None = None) -> list[str]:
+    base = base or default_base()
     errors: list[str] = []
     host = "http://localhost"
     pages = sorted(site.rglob("*.html"))
@@ -84,7 +110,8 @@ def check_links(site: Path, base: str = "/BitacoraABD-ASIR/") -> list[str]:
     return errors
 
 
-def check_404(site: Path, base: str = "/BitacoraABD-ASIR/") -> list[str]:
+def check_404(site: Path, base: str | None = None) -> list[str]:
+    base = base or default_base()
     p = site / "404.html"
     if not p.is_file():
         return ["falta 404.html"]
@@ -92,7 +119,7 @@ def check_404(site: Path, base: str = "/BitacoraABD-ASIR/") -> list[str]:
     errs = []
     if "Volver al inicio" not in text:
         errs.append("404.html no contiene el enlace «Volver al inicio»")
-    if f'href="https://juankafdez05.github.io{base}"' not in text:
+    if f'href="{default_origin()}{base}"' not in text:
         errs.append("404.html no enlaza al inicio con la dirección completa")
     return errs
 
@@ -115,7 +142,7 @@ def check_secrets(site: Path) -> list[str]:
 
 def main(argv: list[str]) -> int:
     site = Path(argv[1] if len(argv) > 1 else "site")
-    base = argv[2] if len(argv) > 2 else "/BitacoraABD-ASIR/"
+    base = argv[2] if len(argv) > 2 else default_base()
     errors = check_links(site, base) + check_404(site, base) + check_secrets(site)
     for e in errors:
         print("ERROR:", e)

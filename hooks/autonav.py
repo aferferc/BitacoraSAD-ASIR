@@ -1,4 +1,4 @@
-"""Navegación automática para Bitácora ABD.
+"""Navegación automática para Bitácora SAD.
 
 Construye el menú lateral (práctica > apartado > documentos) a partir de las
 carpetas y los archivos Markdown de docs/practicas/. No hace falta front matter

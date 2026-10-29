@@ -33,7 +33,7 @@ jobs:
       - name: Construir el sitio (modo estricto)
         run: python -m mkdocs build --strict
       - name: Comprobar enlaces, recursos y secretos bajo la ruta base
-        run: python tools/check_site.py site /BitacoraABD-ASIR/
+        run: python tools/check_site.py site
       - name: Configurar Pages
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: actions/configure-pages@v6

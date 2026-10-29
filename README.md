@@ -1,8 +1,8 @@
-# Bitácora ABD
+# Bitácora SAD
 
 **Laboratorio de Base de Datos · 2.º ASIR · IES Gonzalo Nazareno · Curso 2026/27**
 
-Blog técnico sencillo con la documentación de las prácticas. Es un sitio estático (MkDocs + Material for MkDocs) que se publica en GitHub Pages: <https://juankafdez05.github.io/BitacoraABD-ASIR/>
+Blog técnico sencillo con la documentación de las prácticas. Es un sitio estático (MkDocs + Material for MkDocs) que se publica en GitHub Pages: <https://aferferc.github.io/BitacoraSAD-ASIR/>
 
 ## Qué tiene
 
@@ -54,7 +54,7 @@ Reglas:
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements-dev.txt
-mkdocs serve                       # http://127.0.0.1:8000/BitacoraABD-ASIR/
+mkdocs serve                       # http://127.0.0.1:8000/BitacoraSAD-ASIR/
 python -m pytest -q                # pruebas (opcionales)
 mkdocs build                       # construir en site/
 python tools/check_site.py site    # comprobar enlaces y recursos (opcional)
