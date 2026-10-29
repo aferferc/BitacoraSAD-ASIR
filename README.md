@@ -1,6 +1,6 @@
 # Bitácora SAD
 
-**Laboratorio de Base de Datos · 2.º ASIR · IES Gonzalo Nazareno · Curso 2026/27**
+**Documentación de las prácticas de Seguridad y Alta disponibilidad · 2.º ASIR · IES Gonzalo Nazareno · Curso 2026/27.**
 
 Blog técnico sencillo con la documentación de las prácticas. Es un sitio estático (MkDocs + Material for MkDocs) que se publica en GitHub Pages: <https://aferferc.github.io/BitacoraSAD-ASIR/>
 
