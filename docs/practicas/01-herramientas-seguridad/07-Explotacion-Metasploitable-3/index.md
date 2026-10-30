@@ -8,6 +8,6 @@ Explotación de un honeypot metasploitable 3 por parte de cada integrante del eq
 
 - ###[Alfredo](https://youtu.be/egqkkb-jm20)
 
-- ###[Juan Carlos]()
+- ###[Juan Carlos](https://youtu.be/6sr4a0xy0cE)
 
 - ###[Rubén]()
