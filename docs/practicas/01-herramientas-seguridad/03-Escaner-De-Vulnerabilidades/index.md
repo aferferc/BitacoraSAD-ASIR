@@ -4,4 +4,4 @@ Instalación y configuración de OpenVas en Debian 13 , método manual y método
 
 ###Enlace al video:
 
-* [Video]()
+* [Video](https://youtu.be/bz7qpIfZ-tY)
