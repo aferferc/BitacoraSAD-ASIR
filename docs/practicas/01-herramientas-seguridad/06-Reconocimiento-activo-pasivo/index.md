@@ -1,4 +1,4 @@
-#Reconocimiento Activo y Pasivo
+#R2. Reconocimiento Activo y Pasivo
 
 Video recopilatorio de técnicas de reconocimiento activo y pasivo ejercidas sobre el dominio y la red del Gonzalo Nazareno o en su defecto contra redes propias.
 
