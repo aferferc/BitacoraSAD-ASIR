@@ -24,9 +24,7 @@ exclude_docs: |
   *.crt
   *.pfx
   *.sql.gz
-  *.zip
   *.tar
-  *.tar.gz
   _borradores/
 
 validation:
